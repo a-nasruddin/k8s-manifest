@@ -1,4 +1,4 @@
-apiVersion: image.toolkit.fluxcd.io/v1
+apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
   name: portfolio-img
@@ -7,7 +7,7 @@ spec:
   image: ghcr.io/a-nasruddin/portfolio
   interval: 1m0s
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
+apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
   name: portfolio-policy
@@ -19,7 +19,7 @@ spec:
     alphabetical:
       order: desc  # This will pick the latest tag alphabetically
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
+apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageUpdateAutomation
 metadata:
   name: flux-system-automation
