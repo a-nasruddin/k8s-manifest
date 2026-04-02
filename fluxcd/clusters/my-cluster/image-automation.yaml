@@ -1,0 +1,43 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: portfolio-img
+  namespace: flux-system
+spec:
+  image: ghcr.io/a-nasruddin/portfolio
+  interval: 1m0s
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: portfolio-policy
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: portfolio-img
+  policy:
+    alphabetical:
+      order: asc  # This will pick the latest tag alphabetically
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: flux-system-automation
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: 'chore: update image to {{range .UpdatedImages}}{{.}}{{end}}'
+  update:
+    path: ./portfolio  # Flux will search in the 'portfolio' folder
+    strategy: Setters
