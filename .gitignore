@@ -1,0 +1,36 @@
+# Kubernetes / Helm
+*.secret.yaml
+*.sops.yaml
+secrets.yaml
+.env
+.env.*
+.kubeconfig
+kubeconfig*
+
+# FluxCD / GitOps
+# (Only ignore these if you don't want your cluster-specific bootstrap code public)
+# flux-system/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.settings/
+.classpath
+
+# OS / Systems
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and Temporary
+*.log
+tmp/
+temp/
+*.tmp
+
+# Local testing
+cluster-info.txt
+*.bak
