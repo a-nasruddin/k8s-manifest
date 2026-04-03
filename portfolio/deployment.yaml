@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: portfolio
-          image: ghcr.io/a-nasruddin/portfolio:latest # {"$imagepolicy": "flux-system:portfolio-policy"}
+          image: ghcr.io/a-nasruddin/portfolio:20260403035850-sha-f0b401b7abe230b748e8125286c848b581570d3a # {"$imagepolicy": "flux-system:portfolio-policy"}
           imagePullPolicy: Always # Use local image — no registry needed
           ports:
             - containerPort: 80
