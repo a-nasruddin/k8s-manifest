@@ -1,0 +1,6 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-system/        # This tells Flux: "Manage your own core components!"
+  - portfolio.yaml      # This tells Flux: "Manage my app!"
+  - image-automation.yaml
