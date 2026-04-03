@@ -15,7 +15,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 0          # Zero-downtime deployments
+      maxUnavailable: 0 # Zero-downtime deployments
   template:
     metadata:
       labels:
@@ -23,8 +23,8 @@ spec:
     spec:
       containers:
         - name: portfolio
-          image: ghcr.io/a-nasruddin/portfolio:sha-287b8ca # {"$imagepolicy": "flux-system:portfolio-policy"}
-          imagePullPolicy: Always   # Use local image — no registry needed
+          image: ghcr.io/a-nasruddin/portfolio:20260403035850-sha-f0b401b7abe230b748e8125286c848b581570d3a # {"$imagepolicy": "flux-system:portfolio-policy"}
+          imagePullPolicy: Always # Use local image — no registry needed
           ports:
             - containerPort: 80
               name: http
