@@ -37,7 +37,7 @@ spec:
       author:
         email: fluxcdbot@users.noreply.github.com
         name: fluxcdbot
-      messageTemplate: 'chore: update image to {{range .UpdatedImages}}{{.}}{{end}}'
+      messageTemplate: 'chore: update image to {{range .Updated.Images}}{{.}}{{end}}'
   update:
     path: ./portfolio  # Flux will search in the 'portfolio' folder
     strategy: Setters
