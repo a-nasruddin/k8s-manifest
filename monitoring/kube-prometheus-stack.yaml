@@ -1,0 +1,102 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "72.*"
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: monitoring
+      interval: 1h
+  # ──────────────────────────────────────────────
+  # Helm Values — optimized for k3d
+  # ──────────────────────────────────────────────
+  values:
+    # ── Global ──
+    fullnameOverride: prometheus
+
+    # ── Prometheus ──
+    prometheus:
+      prometheusSpec:
+        replicas: 1
+        retention: 7d
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        # Scrape all ServiceMonitors across all namespaces
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        # Storage — use emptyDir for k3d (no PV needed)
+        storageSpec: {}
+
+    # ── Grafana ──
+    grafana:
+      enabled: true
+      adminUser: admin
+      adminPassword: admin    # Change this!
+      service:
+        type: NodePort
+        nodePort: 30030       # Access via http://localhost:30030
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+      # Auto-discover dashboards from ConfigMaps with the label
+      sidecar:
+        dashboards:
+          enabled: true
+          searchNamespace: ALL
+          label: grafana_dashboard
+          labelValue: "1"
+      # Default datasource is Prometheus (auto-configured)
+
+    # ── Alertmanager ──
+    alertmanager:
+      enabled: true
+      alertmanagerSpec:
+        replicas: 1
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 50m
+            memory: 64Mi
+
+    # ── Node Exporter (host-level metrics: CPU, memory, disk, network) ──
+    nodeExporter:
+      enabled: true
+
+    # ── Kube State Metrics (K8s object metrics: pods, deployments, etc.) ──
+    kubeStateMetrics:
+      enabled: true
+
+    # ── Default Recording & Alerting Rules ──
+    defaultRules:
+      create: true
+      rules:
+        alertmanager: true
+        configReloaders: true
+        general: true
+        k8sContainerCpuUsageSecondsTotal: true
+        k8sContainerMemoryWorkingSetBytes: true
+        kubeApiserverAvailability: true
+        kubePrometheusNodeRecording: true
+        kubernetesApps: true
+        kubernetesResources: true
+        kubernetesStorage: true
+        kubernetesSystem: true
+        node: true

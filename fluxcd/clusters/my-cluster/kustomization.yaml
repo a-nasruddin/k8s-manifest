@@ -4,3 +4,4 @@ resources:
   - flux-system/        # This tells Flux: "Manage your own core components!"
   - portfolio.yaml      # This tells Flux: "Manage my app!"
   - image-automation.yaml
+  - monitoring.yaml     # Prometheus + Grafana monitoring stack

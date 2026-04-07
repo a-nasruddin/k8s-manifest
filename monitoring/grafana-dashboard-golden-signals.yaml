@@ -1,0 +1,292 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-golden-signals
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  golden-signals.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "panels": [
+        {
+          "title": "🚦 Traffic — HTTP Request Rate (req/s)",
+          "description": "Total HTTP request rate across all pods",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "sum(rate(container_network_receive_packets_total{namespace=\"default\"}[5m])) by (pod)",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "fillOpacity": 15,
+                "gradientMode": "scheme",
+                "lineWidth": 2
+              },
+              "unit": "pps"
+            }
+          }
+        },
+        {
+          "title": "❌ Errors — Pod Restart Count",
+          "description": "Container restarts indicate crashes or health check failures",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"default\"}) by (pod)",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "fillOpacity": 10,
+                "lineWidth": 2,
+                "drawStyle": "bars"
+              },
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 5 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "⏱️ Latency — Container Startup Duration",
+          "description": "Time from container start to ready state",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"default\", container!=\"\", container!=\"POD\"}[5m])) by (pod) / sum(kube_pod_container_resource_requests{namespace=\"default\", resource=\"cpu\", container!=\"\"}) by (pod)",
+              "legendFormat": "{{pod}} CPU Throttle Ratio",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": {
+                "fillOpacity": 15,
+                "gradientMode": "scheme",
+                "lineWidth": 2
+              },
+              "unit": "percentunit",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 0.7 },
+                  { "color": "red", "value": 0.9 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "📊 Saturation — CPU Usage vs Requests",
+          "description": "How close pods are to their CPU limits",
+          "type": "gauge",
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "avg(sum(rate(container_cpu_usage_seconds_total{namespace=\"default\", container!=\"\", container!=\"POD\"}[5m])) by (pod) / sum(kube_pod_container_resource_limits{namespace=\"default\", resource=\"cpu\", container!=\"\"}) by (pod))",
+              "legendFormat": "CPU Saturation",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0,
+              "max": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 0.6 },
+                  { "color": "red", "value": 0.85 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "📊 Saturation — Memory Usage vs Limits",
+          "description": "How close pods are to their memory limits",
+          "type": "gauge",
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "avg(sum(container_memory_working_set_bytes{namespace=\"default\", container!=\"\", container!=\"POD\"}) by (pod) / sum(kube_pod_container_resource_limits{namespace=\"default\", resource=\"memory\", container!=\"\"}) by (pod))",
+              "legendFormat": "Memory Saturation",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0,
+              "max": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 0.6 },
+                  { "color": "red", "value": 0.85 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "title": "🏥 Health — Pod Status Overview",
+          "description": "Current status of all pods in the default namespace",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 0, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{namespace=\"default\", phase=\"Running\"})",
+              "legendFormat": "Running",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed", "fixedColor": "green" },
+              "unit": "short"
+            }
+          }
+        },
+        {
+          "title": "⚠️ Health — Pods NOT Ready",
+          "description": "Pods that are not in a Ready state",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 8, "x": 8, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_ready{namespace=\"default\", condition=\"false\"})",
+              "legendFormat": "Not Ready",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed", "fixedColor": "red" },
+              "unit": "short",
+              "noValue": "0"
+            }
+          }
+        },
+        {
+          "title": "📦 Health — Deployment Replicas",
+          "description": "Desired vs Available replicas for deployments",
+          "type": "table",
+          "gridPos": { "h": 4, "w": 8, "x": 16, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "kube_deployment_status_replicas_available{namespace=\"default\"}",
+              "legendFormat": "{{deployment}} available",
+              "refId": "A",
+              "format": "table",
+              "instant": true
+            },
+            {
+              "expr": "kube_deployment_spec_replicas{namespace=\"default\"}",
+              "legendFormat": "{{deployment}} desired",
+              "refId": "B",
+              "format": "table",
+              "instant": true
+            }
+          ]
+        },
+        {
+          "title": "💻 Node — CPU Usage %",
+          "description": "Overall node CPU utilization",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "legendFormat": "CPU Usage %",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "continuous-blues" },
+              "custom": {
+                "fillOpacity": 20,
+                "gradientMode": "scheme",
+                "lineWidth": 2
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          }
+        },
+        {
+          "title": "💻 Node — Memory Usage %",
+          "description": "Overall node memory utilization",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            {
+              "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
+              "legendFormat": "Memory Usage %",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "continuous-purples" },
+              "custom": {
+                "fillOpacity": 20,
+                "gradientMode": "scheme",
+                "lineWidth": 2
+              },
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["golden-signals", "sre", "reliability"],
+      "templating": { "list": [] },
+      "time": { "from": "now-1h", "to": "now" },
+      "title": "Portfolio — 4 Golden Signals & Health",
+      "uid": "golden-signals-portfolio",
+      "version": 1
+    }
