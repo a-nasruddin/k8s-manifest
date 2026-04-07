@@ -23,6 +23,8 @@ spec:
 
     # ── Disable Admission Webhooks (not needed for k3d) ──
     prometheusOperator:
+      tls:
+        enabled: false
       admissionWebhooks:
         enabled: false
       resources:
