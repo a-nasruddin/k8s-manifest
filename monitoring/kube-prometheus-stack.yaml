@@ -21,6 +21,18 @@ spec:
     # ── Global ──
     fullnameOverride: prometheus
 
+    # ── Disable Admission Webhooks (not needed for k3d) ──
+    prometheusOperator:
+      admissionWebhooks:
+        enabled: false
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+
     # ── Prometheus ──
     prometheus:
       prometheusSpec:
