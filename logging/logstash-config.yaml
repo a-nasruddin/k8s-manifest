@@ -1,18 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: logstash-config
+  name: logstash-pipeline
   namespace: logging
 data:
-  # ── Main Logstash config ──
-  logstash.yml: |
-    http.host: "0.0.0.0"
-    path.config: /usr/share/logstash/pipeline
-    pipeline.workers: 1
-    pipeline.batch.size: 125
-    log.level: info
-
-  # ── Pipeline: Filter out noisy/unnecessary logs ──
   pipeline.conf: |
     input {
       beats {
