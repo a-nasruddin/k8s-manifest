@@ -48,14 +48,14 @@ spec:
             - name: XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY
               value: "something_at_least_32_characters_long!!"
             - name: NODE_OPTIONS
-              value: "--max-old-space-size=256"
+              value: "--max-old-space-size=512"
           resources:
             requests:
-              cpu: 50m
-              memory: 256Mi
+              cpu: 100m
+              memory: 512Mi
             limits:
               cpu: 500m
-              memory: 512Mi
+              memory: 768Mi
           readinessProbe:
             httpGet:
               path: /api/status
