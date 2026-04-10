@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+  namespace: logging
+data:
+  # ── Main Logstash config ──
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+    pipeline.workers: 1
+    pipeline.batch.size: 125
+    log.level: info
+
+  # ── Pipeline: Filter out noisy/unnecessary logs ──
+  pipeline.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+    }
+
+    filter {
+      # ── Drop health check logs ──
+      if [message] =~ /GET\s+\/(healthz|readyz|livez|health|ready|favicon\.ico)/ {
+        drop { }
+      }
+
+      # ── Drop kube-system namespace logs ──
+      if [kubernetes][namespace] == "kube-system" {
+        drop { }
+      }
+
+      # ── Drop flux-system namespace logs (noisy reconciliation) ──
+      if [kubernetes][namespace] == "flux-system" {
+        drop { }
+      }
+
+      # ── Drop monitoring namespace logs (Prometheus scraping noise) ──
+      if [kubernetes][namespace] == "monitoring" {
+        drop { }
+      }
+
+      # ── Drop empty or whitespace-only log lines ──
+      if [message] =~ /^\s*$/ {
+        drop { }
+      }
+
+      # ── Parse JSON logs if present ──
+      if [message] =~ /^\{/ {
+        json {
+          source => "message"
+          target => "parsed"
+          skip_on_invalid_json => true
+        }
+      }
+
+      # ── Add metadata ──
+      mutate {
+        add_field => { "cluster" => "k3d-portfolio" }
+        remove_field => ["agent", "ecs", "host", "input"]
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch.logging.svc.cluster.local:9200"]
+        index => "k3d-logs-%{+YYYY.MM.dd}"
+        action => "create"
+      }
+    }
