@@ -5,3 +5,4 @@ resources:
   - helm-repositories.yaml
   - loki.yaml
   - fluentbit.yaml
+  - grafana-dashboard-loki.yaml
