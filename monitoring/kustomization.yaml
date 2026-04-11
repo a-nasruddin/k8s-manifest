@@ -5,3 +5,4 @@ resources:
   - helm-repository.yaml
   - kube-prometheus-stack.yaml
   - grafana-dashboard-golden-signals.yaml
+  - portfolio-alerts.yaml

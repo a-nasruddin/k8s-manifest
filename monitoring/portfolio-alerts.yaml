@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: portfolio-custom-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack # Critical: This label tells Prometheus to pick up these rules
+spec:
+  groups:
+    - name: portfolio.rules
+      rules:
+        # 1. Alert if the Portfolio Pod goes down
+        - alert: PortfolioAppDown
+          expr: absent(up{job="portfolio"} == 1) or up{job="portfolio"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Portfolio application is down"
+            description: "The portfolio application pod has been unreachable or crashed for more than 1 minute."
+
+        # 2. Alert if Nginx is returning 5xx HTTP Errors (if you expose metrics later)
+        - alert: HighErrorRate
+          expr: rate(nginx_http_requests_total{status=~"^5.."}[5m]) > 0.05
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High HTTP 5xx error rate"
+            description: "More than 5% of web requests consistently failing over the last 5 minutes."
+
+        # 3. Alert if CPU usage is too high on the portfolio container
+        - alert: HighCPUUsage
+          expr: sum(rate(container_cpu_usage_seconds_total{namespace="default", pod=~"portfolio-.*"}[5m])) by (pod) > 0.4
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Portfolio container high CPU usage"
+            description: "The pod {{ $labels.pod }} is using > 40% CPU."
