@@ -31,7 +31,8 @@ spec:
           cpu: 300m
           memory: 384Mi
       persistence:
-        enabled: false # Using ephemeral storage for local cluster
+        enabled: true
+        size: 1Gi
     read: { replicas: 0 }
     write: { replicas: 0 }
     backend: { replicas: 0 }
