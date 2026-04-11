@@ -97,8 +97,8 @@ spec:
         receivers:
           - name: 'discord-webhook'
             slack_configs:
-              # IMPORTANT: Replace this URL with your Discord Webhook (ensure it ends in /slack)
-              - api_url: "https://discordapp.com/api/webhooks/1492559510852600029/Gh8Eky_Fd-GBjt1Ms9PT-VRr0c0wrfD6Plz1A-fIRsRRB2d1-3BmPdxb0pqwEGsOS8SR/slack"
+              # Securely read the webhook URL from a mounted Kubernetes secret
+              - api_url_file: /etc/alertmanager/secrets/discord-webhook-secret/url
                 send_resolved: true
                 title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.SortedPairs.Values | join " " }} {{ if eq .Status "firing" }}🚨{{ else }}✅{{ end }}'
                 text: >-
@@ -111,6 +111,8 @@ spec:
                   {{ end }}
       alertmanagerSpec:
         replicas: 1
+        secrets:
+          - discord-webhook-secret
         resources:
           requests:
             cpu: 10m
