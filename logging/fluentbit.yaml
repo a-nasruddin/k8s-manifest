@@ -1,0 +1,64 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fluent-bit
+  namespace: logging
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: fluent-bit
+      version: "0.43.0"
+      sourceRef:
+        kind: HelmRepository
+        name: fluent-charts
+        namespace: logging
+  values:
+    # ── Ultra-low resource footprint ──
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+    # ── Configuration Pipeline ──
+    config:
+      inputs: |
+        [INPUT]
+            Name             tail
+            Path             /var/log/containers/*.log
+            Parser           docker
+            Tag              kube.*
+            Refresh_Interval 5
+            Mem_Buf_Limit    5MB
+            Skip_Long_Lines  On
+
+      filters: |
+        [FILTER]
+            Name             kubernetes
+            Match            kube.*
+            Merge_Log        On
+            Keep_Log         Off
+            K8S-Logging.Parser On
+            K8S-Logging.Exclude On
+
+        # Drop noisy namespaces to save Loki processing power
+        [FILTER]
+            Name             grep
+            Match            kube.*
+            Exclude          $kubernetes['namespace_name'] flux-system
+            Exclude          $kubernetes['namespace_name'] kube-system
+            Exclude          $kubernetes['namespace_name'] monitoring
+
+      outputs: |
+        [OUTPUT]
+            Name             loki
+            Match            kube.*
+            Host             loki-gateway.logging.svc.cluster.local
+            Port             80
+            # Define what labels get sent to Loki for fast filtering
+            Labels           job=fluentbit, namespace=$kubernetes['namespace_name'], pod=$kubernetes['pod_name'], container=$kubernetes['container_name']
+            RemoveKeys       kubernetes, stream
+            Auto_Kubernetes_Labels off
