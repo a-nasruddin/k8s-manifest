@@ -76,5 +76,5 @@ spec:
             Port             80
             # Define what labels get sent to Loki for fast filtering
             Labels           job=fluentbit, namespace=$kubernetes['namespace_name'], pod=$kubernetes['pod_name'], container=$kubernetes['container_name']
-            RemoveKeys       kubernetes, stream
+            Remove_Keys      kubernetes, stream
             Auto_Kubernetes_Labels off
