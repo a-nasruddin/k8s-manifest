@@ -63,11 +63,20 @@ spec:
             - name: discovery.type
               value: single-node
             - name: xpack.security.enabled
+              value: "true"
+            - name: xpack.security.http.ssl.enabled
+              value: "false"
+            - name: xpack.security.transport.ssl.enabled
               value: "false"
             - name: xpack.security.enrollment.enabled
               value: "false"
             - name: xpack.ml.enabled
               value: "false"
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elk-credentials
+                  key: password
             - name: ES_JAVA_OPTS
               value: "-Xms256m -Xmx256m"
             - name: cluster.name

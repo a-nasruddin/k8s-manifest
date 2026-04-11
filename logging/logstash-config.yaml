@@ -56,6 +56,8 @@ data:
     output {
       elasticsearch {
         hosts => ["http://elasticsearch.logging.svc.cluster.local:9200"]
+        user => "${ES_USERNAME}"
+        password => "${ES_PASSWORD}"
         index => "k3d-logs-%{+YYYY.MM.dd}"
         action => "create"
       }

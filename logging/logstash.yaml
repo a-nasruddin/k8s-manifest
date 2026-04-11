@@ -52,6 +52,16 @@ spec:
               value: "125"
             - name: PATH_CONFIG
               value: "/usr/share/logstash/pipeline"
+            - name: ES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: elk-credentials
+                  key: username
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elk-credentials
+                  key: password
           resources:
             requests:
               cpu: 50m
