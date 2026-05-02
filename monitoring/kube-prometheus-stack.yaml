@@ -129,6 +129,16 @@ spec:
     kubeStateMetrics:
       enabled: true
 
+    # ── Disable Control Plane Monitoring (Inaccessible in Kubeadm / Replaced by Cilium) ──
+    kubeProxy:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+
     # ── Default Recording & Alerting Rules ──
     defaultRules:
       create: true
