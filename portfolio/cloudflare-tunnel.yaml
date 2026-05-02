@@ -22,6 +22,8 @@ spec:
         - --no-autoupdate
         - run
         env:
+        - name: TUNNEL_TRANSPORT_PROTOCOL
+          value: http2
         - name: TUNNEL_TOKEN
           valueFrom:
             secretKeyRef:
