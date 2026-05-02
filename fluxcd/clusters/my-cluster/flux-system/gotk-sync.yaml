@@ -11,7 +11,7 @@ spec:
     branch: main
   secretRef:
     name: flux-system
-  url: https://github.com/a-nasruddin/k8s-manifest.git
+  url: ssh://git@github.com/a-nasruddin/k8s-manifest
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
