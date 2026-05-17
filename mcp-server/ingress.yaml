@@ -1,0 +1,44 @@
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Ingress — expose MCP server via your existing Ingress controller
+#
+# Prerequisites:
+#   - An Ingress controller deployed (nginx, traefik, etc.)
+#   - A valid TLS certificate (cert-manager recommended)
+#   - DNS record pointing to your Ingress controller's external IP
+#
+# Usage:
+#   kubectl apply -f ingress.yaml -n mcp-server
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-server
+  namespace: mcp-server
+  annotations:
+    # ── nginx-ingress ──────────────────────────────────────────────────────
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "90"
+    # ── Rate limiting (nginx) ──────────────────────────────────────────────
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    # ── cert-manager ──────────────────────────────────────────────────────
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"   # adjust to your issuer
+spec:
+  ingressClassName: nginx   # adjust to your ingress class (traefik, etc.)
+  tls:
+    - hosts:
+        - mcp.yourdomain.com   # <-- replace with your domain
+      secretName: mcp-server-tls
+  rules:
+    - host: mcp.yourdomain.com   # <-- replace with your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mcp-server
+                port:
+                  name: http

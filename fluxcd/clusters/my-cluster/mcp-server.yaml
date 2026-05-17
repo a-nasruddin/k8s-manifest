@@ -1,0 +1,24 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: mcp-server-repo
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  url: https://github.com/a-nasruddin/k8s-manifest.git
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: mcp-server-kustomization
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./mcp-server
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: mcp-server-repo
+  targetNamespace: mcp-server

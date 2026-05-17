@@ -6,4 +6,5 @@ resources:
   - image-automation.yaml
   - monitoring.yaml     # Prometheus + Grafana monitoring stack
   - logging.yaml        # ELK stack for centralized logging
+  - mcp-server.yaml     # Antigravity MCP Server
 
