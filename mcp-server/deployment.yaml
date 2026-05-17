@@ -93,7 +93,7 @@ metadata:
     app: mcp-server
     version: "1.0.0"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: mcp-server
@@ -208,8 +208,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: mcp-server
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 3
   metrics:
     - type: Resource
       resource:
