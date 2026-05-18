@@ -118,7 +118,7 @@ spec:
         fsGroup: 10001
       containers:
         - name: mcp-server
-          image: ghcr.io/a-nasruddin/mcp-server:sha-3e8eec8   # <-- replace with your registry
+          image: ghcr.io/a-nasruddin/mcp-server:sha-26fc70a   # <-- replace with your registry
           imagePullPolicy: Always
           ports:
             - name: http
